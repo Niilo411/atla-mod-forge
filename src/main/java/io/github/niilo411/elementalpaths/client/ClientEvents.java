@@ -332,8 +332,16 @@ public class ClientEvents {
      */
     @SubscribeEvent
     public static void onClientRespawn(net.minecraftforge.client.event.ClientPlayerNetworkEvent.Clone event) {
-        io.github.niilo411.elementalpaths.ModAttachments.set(event.getNewPlayer(),
-                io.github.niilo411.elementalpaths.ModAttachments.get(event.getOldPlayer()));
+        // The old LocalPlayer may already have been removed, which invalidates its
+        // capabilities — and reading it then hands back a BLANK copy (no element chosen), the
+        // same trap ServerEvents.onPlayerClone documents. Revived for the read, as there.
+        event.getOldPlayer().reviveCaps();
+        try {
+            io.github.niilo411.elementalpaths.ModAttachments.set(event.getNewPlayer(),
+                    io.github.niilo411.elementalpaths.ModAttachments.get(event.getOldPlayer()));
+        } finally {
+            event.getOldPlayer().invalidateCaps();
+        }
     }
 
     /**

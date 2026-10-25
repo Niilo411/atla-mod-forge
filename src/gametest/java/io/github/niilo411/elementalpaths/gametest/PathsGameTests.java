@@ -57,6 +57,54 @@ import java.util.List;
 @PrefixGameTestTemplate(false)
 public class PathsGameTests {
 
+    /**
+     * A death keeps everything a player has earned: element, level, xp, unlocked
+     * abilities and key slots.
+     *
+     * Reproduced the way Forge does it. A dead body's capabilities are INVALIDATED when it
+     * is removed, before the Clone event fires — and the mod's own clone handler used to
+     * read the old body after copyOnDeath had revived and re-invalidated them, so it got a
+     * blank ChannelingData and copied that over everything, sending the player back to the
+     * element screen. The dimension-change route (no invalidation) is checked too.
+     */
+    @GameTest(template = "empty")
+    public static void progressSurvivesDeath(GameTestHelper helper) {
+        for (boolean wasDeath : new boolean[] { true, false }) {
+            ServerPlayer before = mockPlayer(helper);
+            ChannelingData data = ModAttachments.get(before);
+            data.setMainElement("fire");
+            data.setActiveElement("fire");
+            data.setHasChosenElement(true);
+            if (!data.getUnlockedElements().contains("fire")) data.getUnlockedElements().add("fire");
+            data.setLevel(7);
+            data.setXp(55);
+            data.unlockAbility("Fireball");
+            List<String> slots = new ArrayList<>(List.of("Fireball", "EMPTY", "EMPTY", "EMPTY",
+                    "EMPTY", "EMPTY", "EMPTY", "EMPTY"));
+            data.setAllEquippedAbilities(slots);
+
+            if (wasDeath) before.invalidateCaps();     // what removing a dead body does
+
+            ServerPlayer after = new MockPlayer(helper.getLevel());
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PlayerEvent.Clone(after, before, wasDeath));
+            ChannelingData carried = ModAttachments.get(after);
+
+            String route = wasDeath ? "death" : "dimension change";
+            helper.assertTrue("fire".equals(carried.getMainElement()),
+                    "main element lost on " + route + ": '" + carried.getMainElement() + "'");
+            helper.assertTrue(carried.hasChosenElement(), "element choice lost on " + route);
+            helper.assertTrue(carried.getUnlockedElements().contains("fire"), "unlocked elements lost on " + route);
+            helper.assertTrue(carried.getLevel() == 7, "level lost on " + route + ": " + carried.getLevel());
+            helper.assertTrue(carried.getXp() == 55, "xp lost on " + route + ": " + carried.getXp());
+            helper.assertTrue(carried.getUnlockedAbilities().contains("Fireball"), "abilities lost on " + route);
+            helper.assertTrue("Fireball".equals(carried.getEquippedAbilities().get(0)), "key slots lost on " + route);
+
+            before.reviveCaps();
+            helper.getLevel().getServer().getPlayerList().remove(before);
+        }
+        helper.succeed();
+    }
+
     /** Every registry entry the Spirit Realm depends on is present and parses. */
     @GameTest(template = "empty")
     public static void spiritRealmDataLoads(GameTestHelper helper) {

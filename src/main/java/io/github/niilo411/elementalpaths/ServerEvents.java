@@ -1241,6 +1241,21 @@ public class ServerEvents {
      */
     @SubscribeEvent(priority = net.minecraftforge.eventbus.api.EventPriority.LOWEST)
     public static void onPlayerClone(PlayerEvent.Clone event) {
+        // FORGE ONLY: a dead body's capabilities are INVALIDATED before this event fires,
+        // and copyOnDeath (HIGHEST) puts them back to sleep after its own read. Read the old
+        // body without reviving them and ModAttachments.get hands back a BLANK
+        // ChannelingData — which this method then copied over everything, so every death
+        // reset the player's element, level and abilities and reopened the element screen.
+        // Revived for the read and invalidated again afterwards, exactly as copyOnDeath does.
+        event.getOriginal().reviveCaps();
+        try {
+            copyClonedData(event);
+        } finally {
+            event.getOriginal().invalidateCaps();
+        }
+    }
+
+    private static void copyClonedData(PlayerEvent.Clone event) {
         var oldData = io.github.niilo411.elementalpaths.ModAttachments.get(event.getOriginal());
         var newData = io.github.niilo411.elementalpaths.ModAttachments.get(event.getEntity());
 
