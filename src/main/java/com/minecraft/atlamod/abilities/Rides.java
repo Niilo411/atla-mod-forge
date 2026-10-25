@@ -389,11 +389,13 @@ public final class Rides {
         ACTIVE.add(new Ride(level, player.getUUID(), seat, kind, speedUpgrade));
         lie(player, kind.laying);
 
-        level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                kind == Kind.AIR_SCOOTER
-                        ? com.minecraft.atlamod.abilities.air.AirFx.BREEZE_WHIRL
-                        : SoundEvents.PLAYER_SPLASH_HIGH_SPEED,
-                SoundSource.PLAYERS, 0.9F, 1.3F);
+        if (kind == Kind.AIR_SCOOTER) {
+            com.minecraft.atlamod.abilities.air.AirSounds.play(level, "air_scooter:" + player.getUUID(),
+                    player.position(), com.minecraft.atlamod.abilities.air.AirFx.BREEZE_WHIRL, 0.9F, 1.3F);
+        } else {
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.PLAYER_SPLASH_HIGH_SPEED, SoundSource.PLAYERS, 0.9F, 1.3F);
+        }
         return true;
     }
 
@@ -517,6 +519,11 @@ public final class Rides {
 
         // Checked before chi is taken, so the tick a ride fails on is free.
         if (!ride.kind.stillValid(ride, rider)) return false;
+
+        // The scooter's wind lasts the ride, plus a second (see AirSounds).
+        if (ride.kind == Kind.AIR_SCOOTER) {
+            com.minecraft.atlamod.abilities.air.AirSounds.keepAlive("air_scooter:" + rider.getUUID(), rider.position());
+        }
 
         BendingData data = com.minecraft.atlamod.ModAttachments.get(rider);
 

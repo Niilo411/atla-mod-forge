@@ -96,11 +96,10 @@ public final class AirSpouts {
 
     /** Stands a new Air spout up with its foot at {@code base}. It stays where it is put. */
     public static void place(ServerLevel level, Vec3 base) {
-        ACTIVE.add(new Spout(level, base, SPOUT_HEIGHT, SPOUT_LIFT, SPOUT_SWIRL,
-                SPOUT_LIFETIME, null));
+        Spout spout = new Spout(level, base, SPOUT_HEIGHT, SPOUT_LIFT, SPOUT_SWIRL, SPOUT_LIFETIME, null);
+        ACTIVE.add(spout);
 
-        level.playSound(null, base.x, base.y, base.z,
-                AirFx.BREEZE_WHIRL, SoundSource.PLAYERS, 1.4F, 0.6F);
+        AirSounds.play(level, spout, base, AirFx.BREEZE_WHIRL, 1.4F, 0.6F);
     }
 
     /** Raises a Tornado that follows the caster's crosshair until it is cancelled. */
@@ -109,11 +108,11 @@ public final class AirSpouts {
 
         Vec3 base = Aiming.groundUnderLook(owner, STEER_REACH, STEER_GROUND_SCAN);
 
-        ACTIVE.add(new Spout(level, base, TORNADO_HEIGHT, TORNADO_LIFT, TORNADO_SWIRL,
-                TORNADO_LIFETIME, owner.getUUID()));
+        Spout tornado = new Spout(level, base, TORNADO_HEIGHT, TORNADO_LIFT, TORNADO_SWIRL,
+                TORNADO_LIFETIME, owner.getUUID());
+        ACTIVE.add(tornado);
 
-        level.playSound(null, base.x, base.y, base.z,
-                AirFx.BREEZE_WHIRL, SoundSource.PLAYERS, 1.8F, 0.4F);
+        AirSounds.play(level, tornado, base, AirFx.BREEZE_WHIRL, 1.8F, 0.4F);
     }
 
     /** Whether this player currently has a Tornado up. */
@@ -165,6 +164,9 @@ public final class AirSpouts {
 
         throwEntities(spout);
 
+        // Its wind lasts as long as the column does, plus a second (see AirSounds).
+        AirSounds.keepAlive(spout, spout.base);
+
         // Drawn every other tick. A minute of standing spout is a long time to be
         // sending particles, and at ten a second the column still looks continuous.
         if (spout.ticks % 2 == 0) {
@@ -172,8 +174,7 @@ public final class AirSpouts {
         }
 
         if (spout.ticks % 40 == 0) {
-            spout.level.playSound(null, spout.base.x, spout.base.y, spout.base.z,
-                    AirFx.BREEZE_WHIRL, SoundSource.PLAYERS, 0.7F, 0.7F);
+            AirSounds.play(spout.level, spout, spout.base, AirFx.BREEZE_WHIRL, 0.7F, 0.7F);
         }
 
         spout.ticks++;

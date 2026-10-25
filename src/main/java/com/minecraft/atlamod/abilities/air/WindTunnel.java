@@ -94,6 +94,7 @@ public class WindTunnel implements ChanneledAbility {
     @Override
     public void onTick(ServerPlayer player, BendingData data) {
         if (!(player.level() instanceof ServerLevel level)) return;
+        AirSounds.keepAlive("wind_tunnel:" + player.getUUID(), player.position());
 
         Vec3 eye = player.getEyePosition();
         Vec3 look = player.getLookAngle();
@@ -102,8 +103,8 @@ public class WindTunnel implements ChanneledAbility {
 
         // The roar, kept to twice a second rather than every tick.
         if (data.getChannelTicks() % 10 == 0) {
-            level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                    AirFx.BREEZE_WHIRL, SoundSource.PLAYERS, 0.8F, 0.6F);
+            AirSounds.play(level, "wind_tunnel:" + player.getUUID(), player.position(),
+                    AirFx.BREEZE_WHIRL, 0.8F, 0.6F);
         }
 
         // Damage lands on a one-second beat rather than every tick, so "a heart a

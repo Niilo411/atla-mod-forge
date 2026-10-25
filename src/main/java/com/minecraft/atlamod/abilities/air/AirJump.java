@@ -97,13 +97,19 @@ public class AirJump implements ChargedAbility {
 
     @Override
     public void onChargeStart(ServerPlayer player, BendingData data) {
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                AirFx.BREEZE_IDLE_AIR, SoundSource.PLAYERS, 0.7F, 1.4F);
+        if (!(player.level() instanceof ServerLevel level)) return;
+        AirSounds.play(level, soundKey(player), player.position(), AirFx.BREEZE_IDLE_AIR, 0.7F, 1.4F);
+    }
+
+    /** The charge's wind belongs to this player's charge, and stops a second after it. */
+    private static String soundKey(ServerPlayer player) {
+        return "air_jump:" + player.getUUID();
     }
 
     @Override
     public void onChargeTick(ServerPlayer player, BendingData data, int ticksHeld) {
         if (!(player.level() instanceof ServerLevel level)) return;
+        AirSounds.keepAlive(soundKey(player), player.position());
 
         float power = power(ticksHeld);
 
@@ -123,8 +129,7 @@ public class AirJump implements ChargedAbility {
         }
 
         if (ticksHeld % 10 == 0) {
-            level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                    AirFx.BREEZE_IDLE_AIR, SoundSource.PLAYERS,
+            AirSounds.play(level, soundKey(player), player.position(), AirFx.BREEZE_IDLE_AIR,
                     0.4F, 1.0F + 0.8F * power);
         }
     }

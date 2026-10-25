@@ -13,6 +13,9 @@ import net.minecraft.sounds.SoundEvents;
  * none of them exist here. Each keeps its 1.21 NAME and maps onto the nearest thing
  * 1.20.1 has. Changing how air sounds or looks on this version is a change to this file
  * alone, and the ability code reads the same as in the other builds.
+ *
+ * The two whirl sounds map onto the elytra's wind, which is a long loop: play them
+ * through AirSounds, which cuts them a second after the ability stops.
  */
 public final class AirFx {
     private AirFx() {

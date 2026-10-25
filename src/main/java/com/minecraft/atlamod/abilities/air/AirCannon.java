@@ -127,6 +127,7 @@ public class AirCannon implements ChargedAbility, TwoPhaseAbility {
     @Override
     public void onChargeTick(ServerPlayer player, BendingData data, int ticksHeld) {
         if (!(player.level() instanceof ServerLevel level)) return;
+        AirSounds.keepAlive(soundKey(player), player.position());
 
         float power = ticksHeld / (float) CHARGE_TICKS;
 
@@ -145,10 +146,14 @@ public class AirCannon implements ChargedAbility, TwoPhaseAbility {
 
         // A rising note each second, so four seconds of holding still has a shape.
         if (ticksHeld % 20 == 0) {
-            level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                    AirFx.BREEZE_IDLE_AIR, SoundSource.PLAYERS,
+            AirSounds.play(level, soundKey(player), player.position(), AirFx.BREEZE_IDLE_AIR,
                     0.6F, 0.6F + (0.9F * power));
         }
+    }
+
+    /** The charge's wind belongs to this player's charge, and stops a second after it. */
+    private static String soundKey(ServerPlayer player) {
+        return "air_cannon:" + player.getUUID();
     }
 
     /** The charge only finishes the ball; the click is what fires it. */

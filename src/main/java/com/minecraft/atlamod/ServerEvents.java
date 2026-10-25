@@ -41,6 +41,8 @@ public class ServerEvents {
         com.minecraft.atlamod.abilities.water.Tsunamis.tickAll(event.getServer());
         com.minecraft.atlamod.abilities.Rides.tickAll(event.getServer());
         com.minecraft.atlamod.abilities.air.AirSpouts.tickAll(event.getServer());
+        // After everything that keeps an air sound alive this tick, so it is never cut early.
+        com.minecraft.atlamod.abilities.air.AirSounds.tickAll(event.getServer());
         com.minecraft.atlamod.abilities.earth.EarthWorks.tickAll(event.getServer());
         com.minecraft.atlamod.abilities.earth.EarthWalls.tickAll(event.getServer());
         com.minecraft.atlamod.abilities.earth.EarthTraps.tickAll(event.getServer());
@@ -103,6 +105,7 @@ public class ServerEvents {
             com.minecraft.atlamod.abilities.water.Tsunamis.forgetLevel(level);
             com.minecraft.atlamod.abilities.Rides.forgetLevel(level);
             com.minecraft.atlamod.abilities.air.AirSpouts.forgetLevel(level);
+            com.minecraft.atlamod.abilities.air.AirSounds.forgetLevel(level);
             com.minecraft.atlamod.abilities.earth.EarthWorks.forgetLevel(level);
             com.minecraft.atlamod.abilities.earth.EarthWalls.forgetLevel(level);
             com.minecraft.atlamod.abilities.earth.EarthTraps.forgetLevel(level);

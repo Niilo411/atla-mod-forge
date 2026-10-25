@@ -101,6 +101,15 @@ against, so the packets and their handlers did not have to change:
   1.20.1 thing, keeping the 1.21 NAME. Retuning how air sounds on this version is a change
   to that file alone. The Air cannon and Tornado menu icons use a fire charge and a phantom
   membrane for the same reason.
+- **Long air sounds are cut to the ability's length plus one second** (`abilities/air/AirSounds`).
+  The elytra wind that stands in for the Breeze's whirl is a ~10 second loop, and the
+  abilities replay their sound every 10 to 40 ticks (they were written for the Breeze's
+  1 to 2 second sounds), so it stacked and ran on long after the ability ended. Air jump,
+  Air cannon, Wind tunnel, Air scooter, Air spout and Tornado play it through `AirSounds`
+  under a key (the ability and player, or the spout itself) and keep that key alive every
+  tick they run; 20 ticks after the last keep-alive a stop-sound packet goes to everyone in
+  earshot, except anyone still near another live use of the same sound. Any new ability
+  that uses BREEZE_WHIRL or BREEZE_IDLE_AIR should go through it too.
 - **Furnace fields** (Ignite) are reached through a mixin `@Accessor`, not an access
   transformer: on 1.20.1 a transformer has to name the obfuscated field, where a mixin is
   remapped through the refmap.
