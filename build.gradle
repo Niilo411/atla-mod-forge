@@ -1,0 +1,106 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    // ModDevGradle's Forge flavour: the same tooling the NeoForge build used, pointed at
+    // Forge 1.20.1.
+    id 'net.neoforged.moddev.legacyforge' version '2.0.148'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+// Minecraft 1.20.1 runs on Java 17, so the mod is compiled for it.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// Automated in-game checks. A source set of their own so none of it ships in the release
+// jar; `gradlew runGameTestServer` boots a headless server, runs them and exits.
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        // A headless server that runs the game tests in src/gametest and exits.
+        // `gradlew runGameTestServer`, then read run/logs/latest.log.
+        gameTestServer {
+            type = "gameTestServer"
+            sourceSet = sourceSets.gametest
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+            sourceSet(sourceSets.gametest)
+        }
+    }
+}
+
+// Mixins stand in for the few events Forge 1.20.1 does not have; see CLAUDE.md.
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            forge_version          : forge_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+legacyForge.ideSyncTask generateModMetadata
+
+jar {
+    manifest {
+        attributes('MixinConfigs': "${mod_id}.mixins.json")
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ["-Xmaxerrs", "10000"]
+}

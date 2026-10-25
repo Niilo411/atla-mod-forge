@@ -1,0 +1,37 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build
+        run: ./gradlew build
+
+      # Boots a headless server, decodes the Spirit World's data and drives every ability
+      # through a full press-hold-release-toggle cycle. Fails the build if anything throws.
+      - name: Game tests
+        run: ./gradlew runGameTestServer
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: atlamod-jar
+          path: build/libs/atlamod-*.jar
+          if-no-files-found: error

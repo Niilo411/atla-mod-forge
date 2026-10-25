@@ -1,0 +1,7 @@
+# Unix line endings everywhere, so gradlew and the server start script run on Linux
+# (CI and most server hosts); Windows batch files keep theirs.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.jar binary
+*.nbt binary
