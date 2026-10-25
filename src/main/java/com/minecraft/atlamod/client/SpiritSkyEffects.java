@@ -61,11 +61,22 @@ public class SpiritSkyEffects extends DimensionSpecialEffects {
      * What is lost is stars. What is kept is that it reads as a dead place, it is stable,
      * and it is nothing like the End islands' sky, which is a textured purple starfield.
      */
-    private static final DimensionSpecialEffects WASTELAND = new DimensionSpecialEffects(
-            Float.NaN, true, SkyType.NONE, false, true) {
+    private static final DimensionSpecialEffects WASTELAND = new WastelandEffects();
 
+    /**
+     * A NAMED class rather than an anonymous one, and that is load-bearing. An anonymous
+     * subclass makes javac copy the superclass constructor's parameter names into a
+     * constructor of its own, and in a freshly generated 1.20.1 jar two of those come out
+     * with the same name — which compiled on one machine and failed on CI's with
+     * "variable o is already defined". An explicit constructor sidesteps it entirely.
+     */
+    private static final class WastelandEffects extends DimensionSpecialEffects {
         /** Very nearly black, with just enough blue left in it to read as night air. */
         private static final Vec3 FOG = new Vec3(0.035, 0.035, 0.05);
+
+        WastelandEffects() {
+            super(Float.NaN, true, SkyType.NONE, false, true);
+        }
 
         @Override
         public Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
@@ -76,7 +87,7 @@ public class SpiritSkyEffects extends DimensionSpecialEffects {
         public boolean isFoggyAt(int x, int y) {
             return false;
         }
-    };
+    }
 
     public SpiritSkyEffects() {
         // The values passed here are only the defaults for anything not overridden

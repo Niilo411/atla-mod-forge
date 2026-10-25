@@ -220,20 +220,31 @@ public class AtlaGameTests {
      * EmbeddedChannel, which simply swallows whatever is written to it; this does the same.
      * Creative, like vanilla's mock.
      */
+    /**
+     * Named rather than anonymous, for the reason SpiritSkyEffects.WastelandEffects gives:
+     * an anonymous subclass copies the superclass constructor's parameter names, which
+     * collided on CI.
+     */
+    private static final class MockPlayer extends ServerPlayer {
+        MockPlayer(net.minecraft.server.level.ServerLevel level) {
+            super(level.getServer(), level,
+                    new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "test-mock-player"));
+        }
+
+        @Override
+        public boolean isSpectator() {
+            return false;
+        }
+
+        @Override
+        public boolean isCreative() {
+            return true;
+        }
+    }
+
     private static ServerPlayer mockPlayer(GameTestHelper helper) {
         var level = helper.getLevel();
-        ServerPlayer player = new ServerPlayer(level.getServer(), level,
-                new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "test-mock-player")) {
-            @Override
-            public boolean isSpectator() {
-                return false;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return true;
-            }
-        };
+        ServerPlayer player = new MockPlayer(level);
         net.minecraft.network.Connection connection =
                 new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
         new io.netty.channel.embedded.EmbeddedChannel(connection);
