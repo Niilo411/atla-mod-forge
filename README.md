@@ -9,7 +9,7 @@ like. A firebender fights at range and sets the ground alight. A waterbender has
 find water. An earthbender rearranges the terrain and gives it back afterwards. A
 bloodbender can only be stopped by another bloodbender.
 
-![Build](https://github.com/Niilo411/atla-mod/actions/workflows/build.yml/badge.svg)
+![Build](https://github.com/Niilo411/atla-mod-forge/actions/workflows/build.yml/badge.svg)
 
 > **Status:** in active development. Playable and feature-complete across all four
 > elements and all eight sub-elements, but not yet released on Modrinth and not yet
@@ -29,7 +29,7 @@ Other versions: a [Fabric 1.21.11](https://github.com/Niilo411/atla-mod-fabric) 
 
 1. Install [Forge 47.4.28+](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html) for Minecraft 1.20.1.
 2. Download `atlamod-<version>.jar` from
-   [Releases](https://github.com/Niilo411/atla-mod/releases).
+   [Releases](https://github.com/Niilo411/atla-mod-forge/releases).
 3. Drop it into your `mods` folder.
 4. Launch the Forge profile.
 
@@ -152,8 +152,8 @@ The target is never optional, so these work for setting other people up on a ser
 ## Building from source
 
 ```
-git clone https://github.com/Niilo411/atla-mod.git
-cd atla-mod
+git clone https://github.com/Niilo411/atla-mod-forge.git
+cd atla-mod-forge
 ./gradlew build
 ```
 
