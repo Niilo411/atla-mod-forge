@@ -5,13 +5,13 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Writes the empty 8 x 8 x 8 structure the game tests stand in
- * (src/gametest/resources/data/atlamod/structures/empty.nbt).
+ * (src/gametest/resources/data/elemental_paths/structures/empty.nbt).
  *
  * Forge 1.20.1's game tests need a structure template to place, and vanilla ships no empty
  * one. Written byte by byte in the NBT format rather than through Minecraft's own classes,
  * so it runs with nothing on the classpath:
  *
- *   java tools/GenEmptyStructure.java src/gametest/resources/data/atlamod/structures/empty.nbt
+ *   java tools/GenEmptyStructure.java src/gametest/resources/data/elemental_paths/structures/empty.nbt
  *
  * DataVersion 3465 is Minecraft 1.20.1.
  */

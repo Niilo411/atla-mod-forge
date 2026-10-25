@@ -24,7 +24,7 @@ jobs:
       - name: Build
         run: ./gradlew build
 
-      # Boots a headless server, decodes the Spirit World's data and drives every ability
+      # Boots a headless server, decodes the Spirit Realm's data and drives every ability
       # through a full press-hold-release-toggle cycle. Fails the build if anything throws.
       - name: Game tests
         run: ./gradlew runGameTestServer
@@ -32,6 +32,6 @@ jobs:
       - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
-          name: atlamod-jar
-          path: build/libs/atlamod-*.jar
+          name: elemental_paths-jar
+          path: build/libs/elemental_paths-*.jar
           if-no-files-found: error
